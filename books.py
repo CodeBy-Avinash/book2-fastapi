@@ -24,7 +24,7 @@ class BookRequest(BaseModel):
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)
-    rating: int = Field(gt=0, lt=6)
+    rating: int
 
     model_config = {
         "json_schema_extra": {
@@ -59,6 +59,15 @@ async def get_book_id(book_id: int):
             return book
 
 
+@app.get("/books/")
+async def read_book_by_rating(book_rating: int):
+    read_book_rating = []
+    for book in BOOKS:
+        if book.rating == book_rating:
+            read_book_rating.append(book)
+    return read_book_rating
+
+
 @app.post("/create_book")
 async def create_book(book_request: BookRequest):
     new_book = Book(**book_request.model_dump())
@@ -68,3 +77,18 @@ async def create_book(book_request: BookRequest):
 def find_book_id(book: Book):
     book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
     return book
+
+
+@app.put("/book/update_book")
+async def update_book(book: BookRequest):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book.id:
+            BOOKS[i] = book
+
+
+@app.delete("/book/{book_id}")
+async def delete_book(book_id: int):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].id == book_id:
+            BOOKS.pop(i)
+            break
