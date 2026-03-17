@@ -26,6 +26,17 @@ class BookRequest(BaseModel):
     description: str = Field(min_length=1, max_length=100)
     rating: int = Field(gt=0, lt=6)
 
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "title": "a new book",
+                "author": "codingwithnash",
+                "description": "a new description",
+                "rating": 5
+            }
+        }
+    }
+
 
 BOOKS = [
     Book(1, "Programing with python", "codewithavi", "A very nice book", 10),
@@ -39,6 +50,13 @@ BOOKS = [
 @app.get("/books/endpoint")
 async def read_all_books():
     return BOOKS
+
+
+@app.get("/book_id")
+async def get_book_id(book_id: int):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
 
 
 @app.post("/create_book")
